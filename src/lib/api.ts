@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? '/api'  // Changed to relative path for production
+  : 'http://localhost:3000/api';
 
 export const contactSchema = z.object({
   firstName: z.string().min(2),
@@ -37,7 +39,8 @@ export const login = async (credentials: { email: string; password: string }) =>
   });
 
   if (!response.ok) {
-    throw new Error('Invalid credentials');
+    const error = await response.json();
+    throw new Error(error.error || 'Invalid credentials');
   }
 
   return response.json();
